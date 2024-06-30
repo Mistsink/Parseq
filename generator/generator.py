@@ -194,6 +194,8 @@ class DataGenerator:
             sentence_text.append(cur_sentence_text)
         target_text = "\n".join(sentence_text)
         target_text = self.refine_text(target_text, rm_pre_last_space=True)
+        # 将全角空格替换成正常的空格
+        target_text = target_text.replace('\u3000', ' ')
 
         # direction
         # langs 只有汉子、日文，80%是竖排，20%是横排、其他语言都是横排
