@@ -1,0 +1,7 @@
+hydra-core
+torch
+lightning
+timm
+imgaug
+nltk
+tensorboardX
