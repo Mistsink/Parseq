@@ -43,6 +43,7 @@ class BatchResult:
     label_length: int
     loss: Tensor
     loss_numel: int
+    preds: List[str] = None
 
 
 EPOCH_OUTPUT = list[dict[str, BatchResult]]
@@ -125,7 +126,7 @@ class BaseSystem(pl.LightningModule, ABC):
         self, batch: Tuple[torch.Tensor, TextLabelBatched], validation: bool
     ) -> Optional[STEP_OUTPUT]:
         images = batch[0]
-        labels: List[TextLabel] = batch[1]
+        labels: List[TextLabel] = batch[1] if validation else None
 
         correct = 0
         total = 0
@@ -148,6 +149,22 @@ class BaseSystem(pl.LightningModule, ABC):
 
         probs = logits.softmax(-1)
         preds, probs = self.tokenizer.decode(probs)
+
+        if not validation:
+            confidence = torch.sum(probs).item()
+            return dict(
+                output=BatchResult(
+                    len(images),
+                    -1,
+                    -1,
+                    confidence,
+                    -1,
+                    loss,
+                    loss_numel,
+                    preds,
+                )
+            )
+
         for pred, prob, gt in zip(preds, probs, labels):
             confidence += prob.prod().item()
             # pred = self.charset_adapter(pred) TODO 暂时不做处理
@@ -197,8 +214,8 @@ class BaseSystem(pl.LightningModule, ABC):
         self.log("val_loss", loss, sync_dist=True)
         self.log("hp_metric", acc, sync_dist=True)
 
-    def test_step(self, batch, batch_idx) -> Optional[STEP_OUTPUT]:
-        return self._eval_step(batch, False)
+    def test_step(self, batch, batch_idx) -> BatchResult:
+        return self._eval_step(batch, False)["output"]
 
 
 class CrossEntropySystem(BaseSystem):
