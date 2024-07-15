@@ -59,16 +59,17 @@ def main():
     args, unknown = parser.parse_known_args()
 
     if args.checkpoint is None:
-        args.checkpoint = "weight/parseq-bb5792a6.pt"
+        args.checkpoint = "outputs/parseq/2024-07-09_13-16-48/checkpoints/epoch=44-step=702751-val_accuracy=8.5000-val_NED=22.9592.ckpt"
     kwargs = parse_model_args(unknown)
     print(f"Additional keyword arguments: {kwargs}")
 
-    model = load_from_checkpoint(args.checkpoint, **kwargs).eval().to(args.device)
+    model = load_from_checkpoint(args.checkpoint, **kwargs).eval().to('cuda:1')
     hp = model.hparams
 
     trans = Transform(img_size=hp.img_size)
-    img = Image.open("")
+    img = Image.open("assets/test/en.png").convert('RGB')
     img = trans(img)
+    img = img.unsqueeze(0)
 
     res = model.test_step((img.to(model.device), None), -1)
     print(f"pred:\n{res.confidence}: {res.preds}")

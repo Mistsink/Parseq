@@ -1,3 +1,4 @@
+import os
 from pathlib import PurePath
 from typing import Sequence
 
@@ -66,7 +67,10 @@ def get_pretrained_weights(experiment):
     try:
         url = _WEIGHTS_URL[experiment]
     except KeyError:
-        raise InvalidModelError(f"No pretrained weights found for '{experiment}'") from None
+        if os.path.exists(experiment) and os.path.isfile(experiment):
+            return torch.load(experiment)
+        else:
+            raise InvalidModelError(f"No pretrained weights found for '{experiment}'") from None
     return torch.hub.load_state_dict_from_url(url=url, map_location='cpu', check_hash=True)
 
 

@@ -151,7 +151,10 @@ class BaseSystem(pl.LightningModule, ABC):
         preds, probs = self.tokenizer.decode(probs)
 
         if not validation:
-            confidence = torch.sum(probs).item()
+            confidences = [
+                torch.mean(prob).item() for prob in probs
+            ]
+            confidence = sum(confidences) / len(confidences)
             return dict(
                 output=BatchResult(
                     len(images),

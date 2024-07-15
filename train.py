@@ -120,8 +120,8 @@ def main(config: DictConfig):
     swa = StochasticWeightAveraging(swa_lr, swa_epoch_start)
     cwd = (
         HydraConfig.get().runtime.output_dir
-        if config.ckpt_path is None
-        else str(Path(config.ckpt_path).parents[1].absolute())
+        # if config.ckpt_path is None
+        # else str(Path(config.ckpt_path).parents[1].absolute())
     )
     trainer: Trainer = hydra.utils.instantiate(
         config.trainer,

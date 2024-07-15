@@ -10,9 +10,9 @@ model:
   max_label_length: 256
   # The ordering in charset_train matters. It determines the token IDs assigned to each character.
   charset_path: ???
-  batch_size: 16
+  batch_size: 1
   weight_decay: 0.0
-  warmup_pct: 0.005  # equivalent to 1.5 epochs of warm up
+  warmup_pct: 0.075  # equivalent to 1.5 epochs of warm up
 
 data:
   _target_: strhub.data.module.SceneTextDataModule
@@ -25,7 +25,7 @@ data:
   remove_whitespace: true
   normalize_unicode: true
   augment: false
-  num_workers: 8
+  num_workers: 0
   train_sample_num: 1000000
   eval_sample_num: 200
   pred_sample_num: -1
@@ -70,10 +70,10 @@ trainer:
   _convert_: all
   val_check_interval: 1000 # 1 epoch orginal 1000
   #max_steps: 169680  # 20 epochs x 8484 steps (for batch size = 384, real data)
-  max_epochs: 90
-  gradient_clip_val: 40
+  max_epochs: 60
+  gradient_clip_val: 20
   accelerator: gpu
-  devices: 4
+  devices: 1
 
 ckpt_path: outputs/parseq/2024-07-09_13-16-48/checkpoints/last.ckpt
 pretrained: null
